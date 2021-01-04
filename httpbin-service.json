@@ -1,0 +1,10 @@
+[{
+  "Name": "httpbin",
+  "Cpu": 2,
+  "Image": "kennethreitz/httpbin",
+  "Memory": 500,
+  "PortMappings": [{
+    "HostPort": 80,
+    "ContainerPort": 80
+  }]
+}]

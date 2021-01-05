@@ -5,8 +5,12 @@ resource "aws_ecs_task_definition" "this" {
   cpu = 256
   memory = 512
   execution_role_arn = aws_iam_role.httpbin_execution_role.arn
-
   network_mode = "awsvpc"
+}
+
+resource "aws_cloudwatch_log_group" "this" {
+  name = "awslogs-httpbin"
+  retention_in_days = 1
 }
 
 resource "aws_iam_role" "httpbin_execution_role" {
@@ -69,7 +73,7 @@ resource "aws_lb_target_group" "this" {
 
   health_check {
     enabled = true
-    path = "/get"
+    path = "/status/200"
     port = "80"
     matcher = "200"
   }

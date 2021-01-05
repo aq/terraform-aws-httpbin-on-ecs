@@ -4,7 +4,14 @@
   "Image": "kennethreitz/httpbin",
   "Memory": 500,
   "PortMappings": [{
-    "HostPort": 80,
     "ContainerPort": 80
-  }]
+  }],
+  "logConfiguration": {
+    "logDriver": "awslogs",
+    "options": {
+      "awslogs-group": "awslogs-httpbin",
+      "awslogs-region": "eu-west-3",
+      "awslogs-stream-prefix": "httpbin"
+    }
+  }
 }]

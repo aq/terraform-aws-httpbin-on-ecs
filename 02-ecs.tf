@@ -87,7 +87,7 @@ resource "aws_lb_target_group" "this" {
 resource "aws_lb" "this" {
   name               = "httpbin-load-balancer"
   security_groups    = [aws_security_group.httpbin-load-balancer.id]
-  subnets            = aws_subnet.privates.*.id
+  subnets            = aws_subnet.publics.*.id
 }
 
 resource "aws_lb_listener" "this" {
@@ -166,12 +166,22 @@ resource "aws_security_group_rule" "tasks-https-in" {
 }
 */
 
-resource "aws_security_group_rule" "outbound-all" {
+resource "aws_security_group_rule" "httpbin-task-outbound-all" {
      type              = "egress"
      protocol          = "all"
      from_port         = 0
      to_port           = 65535
      cidr_blocks       = ["0.0.0.0/0"]
      security_group_id = aws_security_group.httpbin-tasks.id
+     description       = "All outbound"
+}
+
+resource "aws_security_group_rule" "httpbin-load-balancer-outbound-all" {
+     type              = "egress"
+     protocol          = "all"
+     from_port         = 0
+     to_port           = 65535
+     cidr_blocks       = ["0.0.0.0/0"]
+     security_group_id = aws_security_group.httpbin-load-balancer.id
      description       = "All outbound"
 }

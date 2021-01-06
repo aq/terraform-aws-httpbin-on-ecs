@@ -20,10 +20,11 @@ variable "aws_region" {
 variable "cidr_blocks" {
   default = {
     global    = "0.0.0.0/0"
-    vpc       = "192.168.1.0/26"
-    private_1 = "192.168.1.0/28" # Can't be less than 28
-    private_2 = "192.168.1.16/28"
-    public    = "192.168.1.32/28"
+    vpc       = "192.168.0.0/21"
+    private_1 = "192.168.1.0/24"
+    private_2 = "192.168.2.0/24"
+    public_1  = "192.168.3.0/24"
+    public_2  = "192.168.4.0/24"
   }
 }
 
@@ -56,10 +57,12 @@ resource "aws_subnet" "privates" {
   }
 }
 
-resource "aws_subnet" "public" {
+resource "aws_subnet" "publics" {
+  count = 2
+
   vpc_id                  = aws_vpc.this.id
-  cidr_block              = var.cidr_blocks["public"]
-  availability_zone       = format("%s%s", var.aws_region, element(var.availability_zones, 0))
+  cidr_block              = var.cidr_blocks[format("public_%s", count.index+1)]
+  availability_zone       = format("%s%s", var.aws_region, element(var.availability_zones, count.index))
   map_public_ip_on_launch = true
 }
 
@@ -78,7 +81,9 @@ resource "aws_route" "public_base" {
 }
 
 resource "aws_route_table_association" "public" {
-  subnet_id      = aws_subnet.public.id
+  count = 2
+
+  subnet_id      = element(aws_subnet.publics.*.id, count.index)
   route_table_id = aws_route_table.public.id
 }
 
@@ -89,7 +94,7 @@ resource "aws_eip" "this" {
 # Only the gateway is exposed, we need an access to fetch the image
 resource "aws_nat_gateway" "this" {
   allocation_id = aws_eip.this.id
-  subnet_id     = aws_subnet.public.id
+  subnet_id     = element(aws_subnet.publics.*.id, 0)
 }
 
 resource "aws_route_table" "private" {

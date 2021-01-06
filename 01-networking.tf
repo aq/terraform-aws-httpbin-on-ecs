@@ -1,30 +1,21 @@
-terraform {
-  required_version = "~> 0.14.3"
-
-  required_providers {
-    aws = {
-      version = "~> 3.22.0"
-      source = "hashicorp/aws"
-    }
-  }
+# To create a basic IP filtering to the entry points,
+# fill in your IP through command line:
+# terraform plan -var="operator-ip=184.168.131.241/32"
+variable "operator-ip" {
+  type    = string
+  # default = "0.0.0.0/0"
 }
 
-provider "aws" {
-  region = var.aws_region
-}
-
-variable "aws_region" {
-  default = "eu-west-3"
-}
-
+# The number of available IPs are set to the minimal value here.
+# 16 IPs are available per subnet.
 variable "cidr_blocks" {
   default = {
     global    = "0.0.0.0/0"
     vpc       = "192.168.0.0/21"
-    private_1 = "192.168.1.0/24"
-    private_2 = "192.168.2.0/24"
-    public_1  = "192.168.3.0/24"
-    public_2  = "192.168.4.0/24"
+    private_1 = "192.168.1.0/28"
+    private_2 = "192.168.2.0/28"
+    public_1  = "192.168.3.0/28"
+    public_2  = "192.168.4.0/28"
   }
 }
 
@@ -34,13 +25,7 @@ variable "availability_zones" {
 }
 
 resource "aws_vpc" "this" {
-  # 8 hosts are good enough for this example
   cidr_block = var.cidr_blocks.vpc
-
-  tags = {
-    Project     = "httpbin"
-    Environment = "staging"
-  }
 }
 
 resource "aws_subnet" "privates" {
@@ -50,11 +35,6 @@ resource "aws_subnet" "privates" {
   cidr_block              = var.cidr_blocks[format("private_%s", count.index+1)]
   availability_zone       = format("%s%s", var.aws_region, element(var.availability_zones, count.index))
   map_public_ip_on_launch = false
-
-  tags = {
-    Project     = "httpbin"
-    Environment = "staging"
-  }
 }
 
 resource "aws_subnet" "publics" {
@@ -91,7 +71,6 @@ resource "aws_eip" "this" {
   vpc = true
 }
 
-# Only the gateway is exposed, we need an access to fetch the image
 resource "aws_nat_gateway" "this" {
   allocation_id = aws_eip.this.id
   subnet_id     = element(aws_subnet.publics.*.id, 0)

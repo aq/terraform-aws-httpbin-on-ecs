@@ -1,11 +1,3 @@
-# To create a basic IP filtering to the entry points,
-# fill in your IP through command line:
-# terraform plan -var="operator-ip=184.168.131.241/32"
-variable "operator-ip" {
-  type = string
-  # default = "0.0.0.0/0"
-}
-
 # The number of available IPs are set to the minimal value here.
 # 16 IPs are available per subnet.
 variable "cidr_blocks" {

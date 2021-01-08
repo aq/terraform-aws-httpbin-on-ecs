@@ -1,4 +1,3 @@
-
 resource "aws_lb" "this" {
   name            = "httpbin-load-balancer"
   security_groups = [aws_security_group.httpbin-load-balancer.id]

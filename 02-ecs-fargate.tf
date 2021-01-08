@@ -1,15 +1,15 @@
 resource "aws_ecs_task_definition" "this" {
-  family                = "httpbin-service"
-  container_definitions = file("httpbin-service.json")
+  family                   = "httpbin-service"
+  container_definitions    = file("httpbin-service.json")
   requires_compatibilities = ["FARGATE"]
-  cpu = 256
-  memory = 512
-  execution_role_arn = aws_iam_role.httpbin_execution_role.arn
-  network_mode = "awsvpc"
+  cpu                      = 256
+  memory                   = 512
+  execution_role_arn       = aws_iam_role.httpbin_execution_role.arn
+  network_mode             = "awsvpc"
 }
 
 resource "aws_cloudwatch_log_group" "this" {
-  name = "awslogs-httpbin"
+  name              = "awslogs-httpbin"
   retention_in_days = 1
 }
 
@@ -49,7 +49,7 @@ resource "aws_ecs_service" "this" {
   task_definition = aws_ecs_task_definition.this.arn
   desired_count   = 1
 
-  launch_type     = "FARGATE"
+  launch_type         = "FARGATE"
   scheduling_strategy = "REPLICA"
 
   network_configuration {
@@ -69,8 +69,8 @@ resource "aws_ecs_service" "this" {
 }
 
 resource "aws_security_group" "httpbin-tasks" {
-  name          = "httpbin-tasks"
-  vpc_id        = aws_vpc.this.id
+  name   = "httpbin-tasks"
+  vpc_id = aws_vpc.this.id
 }
 
 resource "aws_security_group_rule" "httpbin-task-outbound-all" {

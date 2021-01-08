@@ -2,7 +2,7 @@
 # fill in your IP through command line:
 # terraform plan -var="operator-ip=184.168.131.241/32"
 variable "operator-ip" {
-  type    = string
+  type = string
   # default = "0.0.0.0/0"
 }
 
@@ -20,7 +20,7 @@ variable "cidr_blocks" {
 }
 
 variable "availability_zones" {
-  type    = list
+  type    = list(string)
   default = ["a", "b"]
 }
 
@@ -29,10 +29,10 @@ resource "aws_vpc" "this" {
 }
 
 resource "aws_subnet" "privates" {
-  count                   = 2
+  count = 2
 
   vpc_id                  = aws_vpc.this.id
-  cidr_block              = var.cidr_blocks[format("private_%s", count.index+1)]
+  cidr_block              = var.cidr_blocks[format("private_%s", count.index + 1)]
   availability_zone       = format("%s%s", var.aws_region, element(var.availability_zones, count.index))
   map_public_ip_on_launch = false
 }
@@ -41,17 +41,17 @@ resource "aws_subnet" "publics" {
   count = 2
 
   vpc_id                  = aws_vpc.this.id
-  cidr_block              = var.cidr_blocks[format("public_%s", count.index+1)]
+  cidr_block              = var.cidr_blocks[format("public_%s", count.index + 1)]
   availability_zone       = format("%s%s", var.aws_region, element(var.availability_zones, count.index))
   map_public_ip_on_launch = true
 }
 
 resource "aws_internet_gateway" "this" {
-    vpc_id = aws_vpc.this.id
+  vpc_id = aws_vpc.this.id
 }
 
 resource "aws_route_table" "public" {
-    vpc_id = aws_vpc.this.id
+  vpc_id = aws_vpc.this.id
 }
 
 resource "aws_route" "public_base" {
@@ -87,7 +87,7 @@ resource "aws_route" "private" {
 }
 
 resource "aws_route_table_association" "private" {
-  count          = 2
+  count = 2
 
   subnet_id      = element(aws_subnet.privates.*.id, count.index)
   route_table_id = aws_route_table.private.id

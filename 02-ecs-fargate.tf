@@ -73,6 +73,7 @@ resource "aws_security_group" "httpbin-tasks" {
   vpc_id = aws_vpc.this.id
 }
 
+# The task needs to pull the image from Docker Hub
 resource "aws_security_group_rule" "httpbin-task-outbound-all" {
   type              = "egress"
   protocol          = "all"
